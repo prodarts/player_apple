@@ -663,7 +663,12 @@ footer {
     font-size: 1.6rem;
   }
   .subcatch {
-    font-size: 1rem;
+      font-size: 1.0rem;
+  color: #E0FFFF;
+  margin-bottom: 20px;
+  font-weight: 700; /* 太字 */
+  text-shadow: 0 0 2px rgba(255,255,255,0.5); /* 控えめな影 */
+    
   }
   .profile-img {
     width: 100%;
@@ -732,7 +737,7 @@ footer {
 
 @media (max-width: 480px) {
   .catch {
-    font-size: 1.2rem;
+    font-size: 1.6rem;
   }
   .gallery-item img {
     width: 130px;
@@ -745,7 +750,7 @@ footer {
 
 /* h1タイトルも新しい赤系に合わせたグラデーションとテキスト色に調整 */
 .blue-h1 {
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   font-weight: bold;
   text-align: center;
   background: linear-gradient(90deg, var(--main-red-light) 0%, var(--main-red-dark) 100%); /* 新しい赤系のグラデーション */
