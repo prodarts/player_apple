@@ -288,7 +288,7 @@ footer { text-align: center; padding: 25px; margin-top: 50px; color: var(--highl
 @media (min-width: 769px) { /* 768pxより大きい画面（PC）にだけ適用 */
 
   .header-content {
-    margin-top: 200px; /* この数字を大きくするともっと下に行きます */
+    margin-top: 100px; /* この数字を大きくするともっと下に行きます */
   }
 
 }
