@@ -1,4 +1,3 @@
-/* 生成されたJavaScriptコード */
 document.addEventListener('DOMContentLoaded', () => {
 
   // 画像ギャラリーの横スクロール機能
@@ -6,91 +5,104 @@ document.addEventListener('DOMContentLoaded', () => {
   const leftArrow = document.getElementById('gallery-left');
   const rightArrow = document.getElementById('gallery-right');
 
-  // 要素が存在するか確認してからイベントリスナーを設定
   if (track && leftArrow && rightArrow) {
-    leftArrow.addEventListener('click', () => {
-      // 画像1枚分の幅(200px) + margin(15px) = 215px に調整しても良い
-      // あるいは、track.clientWidth で現在のトラックの表示幅を取得し、その約90%をスクロール量とする
-      track.scrollBy({ left: -215, behavior: 'smooth' }); // 左にスクロール
-    });
-
-    rightArrow.addEventListener('click', () => {
-      // 画像1枚分の幅(200px) + margin(15px) = 215px に調整しても良い
-      // あるいは、track.clientWidth で現在のトラックの表示幅を取得し、その約90%をスクロール量とする
-      track.scrollBy({ left: 215, behavior: 'smooth' }); // 右にスクロール
-    });
+    leftArrow.addEventListener('click', () => { track.scrollBy({ left: -215, behavior: 'smooth' }); });
+    rightArrow.addEventListener('click', () => { track.scrollBy({ left: 215, behavior: 'smooth' }); });
   }
 
-  // ***** ここから新しいアニメーション機能の追加 *****
-  // アニメーションさせたいすべての要素を取得
-  const fadeInElements = document.querySelectorAll('.fade-in-item');
+  // ***** ヘッダー背景画像とコンテンツアニメーション制御 *****
+  const header = document.querySelector('header');
+  const headerContent = document.querySelector('.header-content'); 
 
-  // Intersection Observer の設定
-  const options = {
-    root: null, // ビューポートをルート(基準)とする
-    rootMargin: '0px', // ルートのマージン(今回はなし)
-    threshold: 0.1 // 要素が10%でも見えたらコールバック関数を実行
-  };
+  const galleryImages = ['img_1.jpg', 'img_2.jpg', 'img_3.jpg', 'img_4.jpg', 'img_5.jpg'];
+  let currentMobileBgIndex = 0; // モバイル用スライダーの現在のインデックス
+  let mobileBgInterval = null; // モバイル用スライダーのインターバルID
 
-  // Intersection Observer のインスタンスを作成
+  function updateHeaderBackground() {
+    if (window.innerWidth > 768) {
+      // PCの場合: ogp.jpgを固定背景に
+      if (mobileBgInterval) {
+        clearInterval(mobileBgInterval); // モバイル用スライダーを停止
+        mobileBgInterval = null;
+      }
+      header.classList.add('pc-bg-image'); // PC用背景クラスを付与
+      header.style.backgroundImage = `url('ogp.jpg')`; // PC用背景画像を設定
+      header.style.backgroundAttachment = 'fixed'; // PC用パララックス効果
+    } else {
+      // モバイルの場合: ギャラリー画像を背景に、自動切り替え
+      header.classList.remove('pc-bg-image'); // PC用背景クラスを削除
+      header.style.backgroundAttachment = 'scroll'; // モバイルでスクロールに固定
+
+      if (!mobileBgInterval) { // スライダーが動いていない場合のみ開始
+        // 初回設定
+        header.style.backgroundImage = `url('${galleryImages[currentMobileBgIndex]}')`;
+        mobileBgInterval = setInterval(() => {
+          currentMobileBgIndex = (currentMobileBgIndex + 1) % galleryImages.length;
+          header.style.backgroundImage = `url('${galleryImages[currentMobileBgIndex]}')`;
+        }, 3000); // 3秒ごとに画像を切り替え
+      }
+    }
+  }
+
+  // ページ読み込み時とリサイズ時にヘッダー背景を更新
+  updateHeaderBackground();
+  window.addEventListener('resize', updateHeaderBackground);
+
+  // ヘッダーコンテンツのアニメーションをトリガー
+  if (headerContent) {
+    setTimeout(() => {
+      headerContent.classList.add('is-visible');
+    }, 100);
+  }
+
+  // ***** スクロールアニメーション機能 *****
+  const sections = document.querySelectorAll('.section');
   const observer = new IntersectionObserver((entries, observer) => {
     entries.forEach(entry => {
-      // 要素がビューポートに入った場合
       if (entry.isIntersecting) {
-        entry.target.classList.add('is-visible'); // 'is-visible' クラスを追加してアニメーションを開始
-        observer.unobserve(entry.target); // 一度アニメーションしたら監視を解除(繰り返しアニメーションさせないため)
+        const section = entry.target;
+        section.classList.add('is-visible'); // セクション全体をふわっと表示
+
+        const title = section.querySelector('.section-title');
+        if (title) {
+          title.classList.add('is-visible'); // タイトルを左からスライドイン
+        }
+        
+        // セクション内のテキスト要素に時間差でアニメーションを適用
+        const textElements = section.querySelectorAll('.anim-text');
+        textElements.forEach((el, index) => {
+           // ↓↓↓ ここを調整します ↓↓↓
+        el.style.transitionDelay = `${0.2 + (index * 0.05)}s`; 
+        // ↑↑↑ ここを調整します ↑↑↑
+          el.classList.add('is-visible');
+        });
+        
+        observer.unobserve(section);
       }
     });
-  }, options);
+  }, { threshold: 0.1 });
 
-  // 各要素を監視対象に追加
-  fadeInElements.forEach(element => {
-    observer.observe(element);
+  sections.forEach(section => {
+    // アニメーションさせたいテキスト要素にクラスを付与
+    // ↓↓↓ この行に .catch と .subcatch を追加しました ↓↓↓
+    section.querySelectorAll('p, span:not(.hearts), li, b, a.sponsor-btn, .item-label, .item-detail, .contact-description, .contact-note, .store-testimonial, .stats-summary, .price-note, .ok-list h3, .ng-list h3, ul.faq-list b, ul.faq-list li, .catch, .subcatch').forEach(el => {
+      el.classList.add('anim-text');
+    });
+    // ↑↑↑ この行に .catch と .subcatch を追加しました ↑↑↑
+    observer.observe(section);
   });
-  // ***** 新しいアニメーション機能の追加はここまで *****
 });
 
 // お問い合わせテンプレートをコピーする機能
 function copyContactTemplate() {
   const contactTemplate = document.getElementById('contact-template');
   const copyAlert = document.getElementById('copy-alert');
-
-  // テキストエリアのテキストを選択し、クリップボードにコピー
   contactTemplate.select();
-  contactTemplate.setSelectionRange(0, 99999); // モバイルデバイス用
-
-  // navigator.clipboard API を優先(より新しいブラウザで推奨)
-  if (navigator.clipboard && navigator.clipboard.writeText) {
+  contactTemplate.setSelectionRange(0, 99999);
+  if (navigator.clipboard) {
     navigator.clipboard.writeText(contactTemplate.value).then(() => {
       copyAlert.style.display = 'block';
-      setTimeout(() => {
-        copyAlert.style.display = 'none';
-      }, 1700); // 1.7秒後に非表示
-    }).catch(err => {
-      // フォールバック (execCommand)
-      console.error('クリップボードへの書き込みに失敗しました:', err);
-      try {
-        document.execCommand('copy');
-        copyAlert.style.display = 'block';
-        setTimeout(() => {
-          copyAlert.style.display = 'none';
-        }, 1700);
-      } catch (errExec) {
-        console.error('execCommandでのコピーにも失敗しました:', errExec);
-        alert('コピーに失敗しました。お手数ですが手動でコピーしてください。');
-      }
+      setTimeout(() => { copyAlert.style.display = 'none'; }, 1700);
     });
-  } else {
-    // navigator.clipboard がサポートされていない場合のフォールバック
-    try {
-      document.execCommand('copy');
-      copyAlert.style.display = 'block';
-      setTimeout(() => {
-        copyAlert.style.display = 'none';
-      }, 1700);
-    } catch (errExec) {
-      console.error('execCommandでのコピーにも失敗しました:', errExec);
-      alert('コピーに失敗しました。お手数ですが手動でコピーしてください。');
-    }
   }
 }
